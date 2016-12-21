@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <IncludePath>F:\Insall_package\OpenGL\soil\Simple OpenGL Image Library\src;E:\Project\VS2012_Project\GpenGL_test1\glwf_lib-vc2010;$(IncludePath)</IncludePath>
+    <LibraryPath>F:\Insall_package\OpenGL\soil\Simple OpenGL Image Library\projects\VC9\Release;E:\Project\VS2012_Project\GpenGL_test1\glwf_lib-vc2010;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>glfw3.lib;glew32.lib;opengl32.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
