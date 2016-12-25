@@ -60,23 +60,26 @@ void cube::initbuffer()
 float cube::cal_incre(glm::vec3 const & move_vec, glm::mat4 const & model, char flag)
 {
 	glm::vec3 dir;
-	float amp_factor = 0.001;
+	float amp_factor = 0.01;
 	switch (flag)
 	{
 	case 'x':
 		dir = glm::vec3(model[0].x, model[1].x, model[2].x);
 		dir = glm::normalize(dir);
+		printf("incre: %f\n",glm::dot(move_vec,dir)*amp_factor);
 		return glm::dot(move_vec,dir)*amp_factor;
 		break;
 	case 'y':
 		dir = glm::vec3(model[0].y, model[1].y, model[2].y);
 		dir = glm::normalize(dir);
+		printf("incre: %f\n",glm::dot(move_vec,dir)*amp_factor);
 		return glm::dot(move_vec,dir)*amp_factor;
 		break;
 	case 'z':
 		dir = glm::vec3(model[0].z, model[1].z, model[2].z);
-		dir = glm::normalize(dir)*amp_factor;
-		return glm::dot(move_vec,dir);
+		dir = glm::normalize(dir);
+		printf("incre: %f\n", - glm::dot(move_vec,dir)*amp_factor);
+		return - glm::dot(move_vec,dir)*amp_factor;
 		break;
 	default:
 		break;
@@ -86,11 +89,12 @@ float cube::cal_incre(glm::vec3 const & move_vec, glm::mat4 const & model, char 
 void cube::move(glm::vec3 const & move_vec, glm::mat4 const & model, int surface_index)
 {
 	float increment;
+	float dis_min = 0.4;
 	switch (surface_index)
 	{
 	case 0:
 		increment = cal_incre(move_vec, model, 'z');
-		if(_vertices[__cube__indices[0][0]].z + increment - _vertices[__cube__indices[1][0]].z < 0.001) break;
+		if(_vertices[__cube__indices[0][0]].z + increment - _vertices[__cube__indices[1][0]].z < dis_min) break;
 		_vertices[__cube__indices[0][0]].z += increment;
 		_vertices[__cube__indices[0][1]].z += increment;
 		_vertices[__cube__indices[0][2]].z += increment;
@@ -98,42 +102,49 @@ void cube::move(glm::vec3 const & move_vec, glm::mat4 const & model, int surface
 		break;
 	case 1:
 		increment = cal_incre(move_vec, model, 'z');
-		if(_vertices[__cube__indices[0][0]].z + increment - _vertices[__cube__indices[1][0]].z < 0.001) break;
+		if(_vertices[__cube__indices[0][0]].z - increment - _vertices[__cube__indices[1][0]].z < dis_min) break;
 		_vertices[__cube__indices[1][0]].z += increment;
 		_vertices[__cube__indices[1][1]].z += increment;
 		_vertices[__cube__indices[1][2]].z += increment;
 		_vertices[__cube__indices[1][4]].z += increment;
+		break;
 	case 2:
 		increment = cal_incre(move_vec, model, 'x');
-		if(_vertices[__cube__indices[2][0]].x + increment - _vertices[__cube__indices[3][0]].x < 0.001) break;
+		if(_vertices[__cube__indices[2][0]].x + increment - _vertices[__cube__indices[3][0]].x < dis_min) break;
 		_vertices[__cube__indices[2][0]].x += increment;
 		_vertices[__cube__indices[2][1]].x += increment;
 		_vertices[__cube__indices[2][2]].x += increment;
 		_vertices[__cube__indices[2][4]].x += increment;
+		break;
 	case 3:
 		increment = cal_incre(move_vec, model, 'x');
-		if(_vertices[__cube__indices[2][0]].x + increment - _vertices[__cube__indices[3][0]].x < 0.001) break;
+		if(_vertices[__cube__indices[2][0]].x - increment - _vertices[__cube__indices[3][0]].x < dis_min) break;
 		_vertices[__cube__indices[3][0]].x += increment;
 		_vertices[__cube__indices[3][1]].x += increment;
 		_vertices[__cube__indices[3][2]].x += increment;
 		_vertices[__cube__indices[3][4]].x += increment;
+		break;
 	case 4:
 		increment = cal_incre(move_vec, model, 'y');
-		if(_vertices[__cube__indices[4][0]].y + increment - _vertices[__cube__indices[5][0]].y < 0.001) break;
+		if(_vertices[__cube__indices[4][0]].y + increment - _vertices[__cube__indices[5][0]].y < dis_min) break;
 		_vertices[__cube__indices[4][0]].y += increment;
 		_vertices[__cube__indices[4][1]].y += increment;
 		_vertices[__cube__indices[4][2]].y += increment;
 		_vertices[__cube__indices[4][4]].y += increment;
+		break;
 	case 5:
 		increment = cal_incre(move_vec, model, 'y');
-		if(_vertices[__cube__indices[4][0]].y + increment - _vertices[__cube__indices[5][0]].y < 0.001) break;
+		if(_vertices[__cube__indices[4][0]].y - increment - _vertices[__cube__indices[5][0]].y < dis_min) break;
 		_vertices[__cube__indices[5][0]].y += increment;
 		_vertices[__cube__indices[5][1]].y += increment;
 		_vertices[__cube__indices[5][2]].y += increment;
 		_vertices[__cube__indices[5][4]].y += increment;
+		break;
 	default:
 		break;
 	}
+	printver();
+	printf("\n");
 }
 bool cube::get_intersec_triangle(glm::vec3 const & o, glm::vec3 const & dir, int vex_index[], float &t, glm::mat4 const & model)
 {

@@ -17,7 +17,11 @@
 #include "Shader.h"
 #include "Cube.h"
 #include "glpaint.h"
+#include <math.h>
 // Function prototypes
+
+#include "Axis.h"
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -27,8 +31,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 GLFWwindow* gl_glfw_init();
 
 const GLuint WIDTH = 800, HEIGHT = 600;
-
-// The MAIN function, from here we start the application and run the game loop
 
 glm::vec2 cursorpos;
 
@@ -40,7 +42,7 @@ glm::mat4 model;
 glm::mat4 view;
 glm::mat4 projection;
 
-glm::vec3 vertices[8] = 
+glm::vec3 cube_vertices[8] = 
 {
    glm::vec3( 0.5f, -0.5f,  0.5f), 
    glm::vec3( 0.5f,  0.5f,  0.5f),
@@ -52,8 +54,25 @@ glm::vec3 vertices[8] =
    glm::vec3(-0.5f, -0.5f, -0.5f),
 };
 
+# define leng_fac 0.1
+glm::vec3 axis_vertices[12]=
+{
+	glm::vec3( 2.0f,  0.0f,  0.0f), 
+	glm::vec3(-1.0f,  0.0f,  0.0f),
+	glm::vec3( 0.0f,  1.0f,  0.0f), 
+	glm::vec3( 0.0f, -2.0f,  0.0f), 
+	glm::vec3( 0.0f,  0.0f,  1.0f),
+	glm::vec3( 0.0f,  0.0f, -2.0f),
+	glm::vec3(- sqrt(3.0)/2 * leng_fac + 2, 1/2.0 *leng_fac, 0 ),
+	glm::vec3(- sqrt(3.0)/2 * leng_fac + 2, -1/2.0 *leng_fac, 0 ),
+	glm::vec3( 1/2.0 * leng_fac, -sqrt(3.0)/2 *leng_fac + 1, 0),
+	glm::vec3(-1/2.0 * leng_fac, -sqrt(3.0)/2 *leng_fac + 1, 0),
+	glm::vec3( 1/2.0 * leng_fac, 0,-sqrt(3.0)/2 *leng_fac + 1),
+	glm::vec3(-1/2.0 * leng_fac, 0,-sqrt(3.0)/2 *leng_fac + 1),
+
+};
+
 cube Cube;
-glpaint surface_array[6];
 int surface_index = -1;
 
 int main()
@@ -62,48 +81,32 @@ int main()
 	window = gl_glfw_init();
     // Build and compile our shader program
     Shader ourShader("vertex.txt", "fragment.txt");
-	Cube.set_vex(vertices);
-    // Set up vertex data (and buffer(s)) and attribute pointers
-	float vertex_temp[6 * 6];
 
-	
-	for(int i=0; i<6; i++)
-	{
-		surface_array[i].setbuffer(1);
-		Cube.gene_gl_vertic(vertex_temp,i,glm::vec3(1.0f, 0.5f, 0.2f));
-		surface_array[i].loadvertex(vertex_temp,sizeof(vertex_temp),GL_DYNAMIC_DRAW);
-	}
-
-	//loadbuffer(VAO, VBO, vertices, sizeof(vertices));
-	//loadbuffer(VAO1, VBO1, vertices1, sizeof(vertices1));
-
-	
+	Cube.set_vex(cube_vertices, 8);
+	Cube.initbuffer();
+	Cube.setbuffer();
     
-   	model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+	axis Axis(axis_vertices, 12);
+	Axis.init_buffer();
+	Axis.setbuffer();
+
+	 //const GLubyte * OpenGLVersion = glGetString(GL_VERSION);
+	 //printf("OOpenGL实现的版本号：%s\n",OpenGLVersion);
+   	model = glm::rotate(model, glm::radians(135.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 	view =glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    // Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
     projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    // Game loop
+//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!glfwWindowShouldClose(window))
     {
-        // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
 
-        // Render
-        // Clear the colorbuffer
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
         // Activate shader
         ourShader.Use();
 
-        // Create transformations
-       
-        // Get their uniform location
         GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
         GLint viewLoc = glGetUniformLocation(ourShader.Program, "view");
         GLint projLoc = glGetUniformLocation(ourShader.Program, "projection");
@@ -112,22 +115,11 @@ int main()
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
+		Axis.draw(GL_LINE_LOOP);
+		Cube.draw(GL_LINE_STRIP);
 
-		for(int i=0; i<6; i++)
-		{
-			surface_array[i].glPaintElements(GL_TRIANGLES, 0,6);
-		}
-
-		//glBindVertexArray(VAO1);
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
-        //glBindVertexArray(0);
-
-        // Swap the screen buffers
         glfwSwapBuffers(window);
     }
-    // Properly de-allocate all resources once they've outlived their purpose
-  
-    // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
     return 0;
 }
@@ -141,100 +133,36 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 }
 
-void loadbuffer(GLuint VAO, GLuint VBO, GLuint EBO, GLfloat vertices[], int vertice_len, GLuint indices[], GLuint indices_len, GLuint vertices_state)
-{
-	glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertice_len, vertices, vertices_state);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_len, indices, GL_STATIC_DRAW); 
-
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
- 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0); // Unbind VAO
-}
-
-glm::vec3 cal_normal(glm::vec3 a1, glm::vec3 a2, glm::vec3 a_ref, glm::vec3 o)
-{
-	glm::vec3 oa1 = a1 - o;
-	glm::vec3 oa2 = a2 - o;
-
-	glm::vec3 oa_ref = a_ref - o;
-
-	glm::vec3 n = glm::cross(oa1, oa2);
-
-	if(glm::dot(n,a_ref) > 0)
-	{
-		n = -n;
-	}
-	return n;
-}
-
-bool intersect(glm::vec3 vex[], glm::vec3 a, glm::vec3 o)
-{
-	glm::vec3 n[4];
-	for(int i = 0; i<4;i++)
-	{
-		n[i] = cal_normal(vex[(0+i)%4],vex[(1+i)%4],vex[(2+i)%4],o);
-	}
-	
-	glm::vec3 ray = a - o;
-
-	float in_pr[4];
-	for(int i = 0 ; i<4;i++)
-	{
-		in_pr[i] = glm::dot(n[i], ray);
-	}
-
-	for(int i = 1; i<4 ;i++)
-	{
-		if(in_pr[0]*in_pr[i]<0)
-		{
-			return false;
-		}
-	}
-
-	return true ;
-}
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	glm::vec3 cursor_move;
+	static bool flag_first = true;
+	glm::vec3 cursor_pos;
+	static glm::vec3 cursor_pos_former;
 
 	if(surface_index!= -1)
 	{
-		float vertex_temp[6 * 6];
-		cursor_move.x = xpos - cursorpos.x;
-		cursor_move.y = ypos - cursorpos.y;
+		cursor_pos.x = xpos;
+		cursor_pos.y = ypos;
 		glm::vec4 viewport = glm::vec4(0.0f, 0.0f, WIDTH, HEIGHT);
-		glm::vec3 screenPos = glm::vec3(cursor_move.x, HEIGHT-cursor_move.y - 1, 0.96);
-		cursor_move = glm::unProject(screenPos, view , projection, viewport);
-		Cube.move(cursor_move,model,surface_index);
+		glm::vec3 screenPos = glm::vec3(cursor_pos.x, HEIGHT-cursor_pos.y - 1, 0.96);
+		cursor_pos = glm::unProject(screenPos, view , projection, viewport);
 
-		for(int i=0; i<6; i++)
-		{
-			surface_array[i].setbuffer(1);
-			Cube.gene_gl_vertic(vertex_temp,i,glm::vec3(1.0f, 0.5f, 0.2f));
-			surface_array[i].loadvertex(vertex_temp,sizeof(vertex_temp),GL_DYNAMIC_DRAW);
-		}
+		if(flag_first == false)
+			Cube.move(cursor_pos,model,surface_index);
+		printf("%d\n", surface_index);
+		Cube.setbuffer();
+		cursor_pos_former = cursor_pos;
+
+		flag_first = false;
 	}
 
 	cursorpos.x = xpos;
 	cursorpos.y = ypos;
-
-
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	float vertex_temp[6 * 6];
 	glm::vec4 viewport = glm::vec4(0.0f, 0.0f, WIDTH, HEIGHT);
 	glm::vec3 screenPos = glm::vec3(cursorpos.x, HEIGHT-cursorpos.y - 1, 0.96);
 	glm::vec3 worldPos = glm::unProject(screenPos, view , projection, viewport);
@@ -242,16 +170,16 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	{
 		if(Cube.find_insect_surface(cameraPos,worldPos - cameraPos, surface_index, model))
 		{
-			printf("%d\n",surface_index);
-			Cube.gene_gl_vertic(vertex_temp,surface_index,glm::vec3(1.0f, 1.0f, 1.0f));
-			surface_array[surface_index].loadvertex(vertex_temp,sizeof(vertex_temp),GL_DYNAMIC_DRAW);
+		//	printf("%d\n",surface_index);
+			Cube.changecolor(glm::vec3(1.0f, 1.0f, 1.0f),surface_index);
+			Cube.loadbuffer(surface_index);
 		}
 	}
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && surface_index != -1)
 	{
-		printf("%d\n",surface_index);
-		Cube.gene_gl_vertic(vertex_temp,surface_index,glm::vec3(1.0f, 0.5f, 0.2f));
-		surface_array[surface_index].loadvertex(vertex_temp,sizeof(vertex_temp),GL_DYNAMIC_DRAW);
+		//printf("%d\n",surface_index);
+		Cube.changecolor(glm::vec3(1.0f, .5f, 0.2f),surface_index);
+		Cube.loadbuffer(surface_index);
 		surface_index = -1;
 	}
 }
@@ -265,7 +193,7 @@ GLFWwindow* gl_glfw_init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
     // Create a GLFWwindow object that we can use for GLFW's functions
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", nullptr, nullptr);
@@ -284,6 +212,6 @@ GLFWwindow* gl_glfw_init()
     glViewport(0, 0, WIDTH, HEIGHT);
     // Setup OpenGL options
     glEnable(GL_DEPTH_TEST);
-
+	
 	return window;
 }
