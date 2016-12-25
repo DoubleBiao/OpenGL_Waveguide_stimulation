@@ -1,4 +1,5 @@
 #include"glpaint.h"
+#include "Shader.h"
 
 glpaint::~glpaint()
 {
@@ -15,6 +16,7 @@ glpaint::glpaint(int buffer_num)
 
 void glpaint::setbuffer(int buffer_num)
 {
+
 	glGenVertexArrays(buffer_num, &VAO);
     glGenBuffers(buffer_num, &VBO);
 }

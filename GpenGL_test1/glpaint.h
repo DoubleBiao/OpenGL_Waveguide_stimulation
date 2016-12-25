@@ -1,6 +1,3 @@
-#include <iostream>
-
-
 #include <GL/glew.h>
 
 // GLFW
@@ -13,7 +10,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#ifndef GLPAINT
+#define GLPAINT
 // Other includes
+#include <iostream>
 
 class glpaint
 {
@@ -28,4 +28,4 @@ public:
 	void loadvertex(float * vertices, int vertice_len,GLuint vertices_state);
 	void glPaintElements(GLenum mode, GLint first, GLsizei count);
 };
-
+#endif

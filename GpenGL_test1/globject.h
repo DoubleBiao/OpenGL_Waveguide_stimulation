@@ -1,4 +1,4 @@
-#include"glpaint.h"
+
 // GLM Mathematics
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -6,25 +6,30 @@
 #include <GL/glew.h>
 // GLFW
 #include <glfw3.h>
-
+#include<iostream>
 #include<vector>
+
+#ifndef GLOBJECT
+#define GLOBJECT
+#include"glpaint.h"
+
 using namespace std;
 
-const int __cube__indices[6][6]= 
-{
-	{0,1,2,0,3,2},
-	{4,5,6,6,7,4},
-	{0,1,5,5,4,0},
-	{2,3,7,7,6,2},
-	{1,2,6,6,5,1},
-	{0,3,7,7,4,0},
-};
+//const int __cube__indices[6][6]= 
+//{
+//	{0,1,2,0,3,2},
+//	{4,5,6,6,7,4},
+//	{0,1,5,5,4,0},
+//	{2,3,7,7,6,2},
+//	{1,2,6,6,5,1},
+//	{0,3,7,7,4,0},
+//};
 
-struct surface_len
-{
-	int sur_index;
-	float len;
-};
+//struct surface_len
+//{
+//	int sur_index;
+//	float len;
+//};
 
 class globject_part
 {
@@ -53,6 +58,7 @@ public:
 		{
 			_vex_indices[i] = leftopprand._vex_indices[i];
 		}
+		return *this;
 	}
 	void assign_index(int indices[], int indicesnum)
 	{
@@ -68,7 +74,8 @@ public:
 
 class baseobject
 {
-protected:
+//protected:
+public:
 	glpaint *_paintobject;
 	int _vextexnum;
 	int _partnum;
@@ -98,6 +105,25 @@ public:
 			_part[i] = part[i];
 		}
 	}
+
+	void init_buffer(int partnum)
+	{
+		_paintobject = new glpaint[partnum];
+	
+		for(int i =0; i< partnum;i++)
+		{
+			_paintobject[i].setbuffer(1);
+		}
+	}
+	void init_buffer()
+	{
+		_paintobject = new glpaint[_partnum];
+	
+		for(int i =0; i< _partnum;i++)
+		{
+			_paintobject[i].setbuffer(1);
+		}
+	}
 	void set_vex(glm::vec3  ver[], int vertexnum)
 	{
 		delete _vertices;
@@ -113,13 +139,6 @@ public:
 		delete _part;
 		_partnum = partnum;
 		
-		_paintobject = new glpaint[partnum];
-		
-		for(int i =0; i< partnum;i++)
-		{
-			_paintobject[i].setbuffer(1);
-		}
-
 		_part = new globject_part[partnum];
 
 		for(int i = 0; i<partnum; i++)
@@ -145,6 +164,7 @@ public:
 			_part[i].assign_index(*(indices+i),indices_len[i]);
 		}
 	}
+
 	void loadbuffer(int partid, GLuint vertices_state = GL_STATIC_DRAW)
 	{
 		int verticesnum = _part[partid]._indices_num;
@@ -160,8 +180,7 @@ public:
 			vertices[++k] = _part[partid]._color.y;
 			vertices[++k] = _part[partid]._color.z;
 		}
-
-		_paintobject[partid].loadvertex(vertices, verticesnum * 6,vertices_state);
+		_paintobject[partid].loadvertex(vertices, verticesnum * 6 * sizeof(float),vertices_state);
 	}
 	void setbuffer(GLuint vertices_state = GL_STATIC_DRAW)
 	{
@@ -170,8 +189,17 @@ public:
 			loadbuffer(i, vertices_state);
 		}
 	}
-	void drawobject_part(int partid, GLenum mode)
+
+	void drawobject_part(int partid, GLenum mode = GL_TRIANGLES)
 	{
 		_paintobject[partid].glPaintElements(mode, 0, _part[partid]._indices_num);
 	}
+	void draw(GLenum mode = GL_TRIANGLES)
+	{
+		for(int i = 0;i<_partnum;i++)
+		{
+			_paintobject[i].glPaintElements(mode, 0, _part[i]._indices_num);
+		}
+	}
 };
+#endif
