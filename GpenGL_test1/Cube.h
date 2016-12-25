@@ -32,5 +32,12 @@ public:
 	bool get_intersec_triangle(glm::vec3 const & o, glm::vec3 const & dir, int vex_index[], float &t, glm::mat4 const & model);
 	bool get_intersec(glm::vec3 const & o, glm::vec3 const & dir, int surface_index, float & t, glm::mat4 const & model);
 	bool find_insect_surface(glm::vec3 o, glm::vec3 dir, int & surface_index, glm::mat4 const & model);
+	void printver()
+	{
+		for(int i = 0; i<8 ; i++)
+		{
+			printf("%f, %f, %f\n",_vertices[i].x,_vertices[i].y,_vertices[i].z);
+		}
+	}
 };
 #endif
