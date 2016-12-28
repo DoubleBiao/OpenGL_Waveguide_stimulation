@@ -80,16 +80,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="fragment.txt" />
+    <Text Include="fragment2.txt" />
+    <Text Include="geometry.txt" />
+    <Text Include="ins_vertex.txt" />
+    <Text Include="ins_vertex2.txt" />
     <Text Include="vertex.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Cube.h" />
-    <ClInclude Include="globject.h" />
-    <ClInclude Include="glpaint.h" />
+    <ClInclude Include="glprimitives.h" />
+    <ClInclude Include="objects.h" />
     <ClInclude Include="shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="glpaint.cpp" />
+    <ClCompile Include="objects.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

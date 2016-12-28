@@ -1,8 +1,12 @@
 #version 330 core
-in vec3 vertexcolor;
+in Fragment
+{
+    vec4 color;
+} fragment;
+
 out vec4 color;
 
-void main()
+void main(void)
 {
-    color = vec4(vertexcolor, 1.0f);
+    color = fragment.color;
 }

@@ -1,15 +1,22 @@
 #version 330 core
-layout (location = 0) in vec3 position;
-in vec3 inputcolor;
 
-out vec3 vertexcolor;
+in vec3 position;
+in vec3 instance_color;
+//in vec4 instance_position;
+
+out Fragment
+{
+    vec4 color;
+} fragment;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-void main()
+void main(void)
 {
-    gl_Position = projection * view * model * vec4(position, 1.0f);
-	vertexcolor = inputcolor;
+  //  gl_Position = (position + instance_position);// * vec4(0.1, 0.1, 1.0, 1.0);
+    gl_Position = projection * view * model *vec4(position ,1.0);
+    fragment.color = vec4(instance_color ,1.0);
 }
+  

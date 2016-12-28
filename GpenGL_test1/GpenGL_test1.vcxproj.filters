@@ -21,18 +21,27 @@
     <Text Include="vertex.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="fragment2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="geometry.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="ins_vertex.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="ins_vertex2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Cube.h">
+    <ClInclude Include="objects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="glpaint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="globject.h">
+    <ClInclude Include="glprimitives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -40,7 +49,7 @@
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="glpaint.cpp">
+    <ClCompile Include="objects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
