@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>F:\Insall_package\OpenGL\soil\Simple OpenGL Image Library\src;E:\Project\VS2012_Project\GpenGL_test1\glwf_lib-vc2010;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Insall_package\OpenGL\soil\Simple OpenGL Image Library\projects\VC9\Release;E:\Project\VS2012_Project\GpenGL_test1\glwf_lib-vc2010;$(LibraryPath)</LibraryPath>
+    <IncludePath>F:\Insall_package\OpenGL\soil\Simple OpenGL Image Library\src;..\glwf_lib-vc2010;$(IncludePath)</IncludePath>
+    <LibraryPath>F:\Insall_package\OpenGL\soil\Simple OpenGL Image Library\projects\VC9\Release;..\glwf_lib-vc2010;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

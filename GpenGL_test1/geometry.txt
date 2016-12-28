@@ -1,0 +1,31 @@
+//geometry
+#version 330
+
+layout (lines_adjacency) in;
+layout (line_strip,max_vertices = 2) out;
+
+in Fragment
+{
+    vec4 color;
+} fragment[];
+
+out vec4 outfragment;
+
+void main(void)
+{
+	/*int i;
+	for(i = 0;  i<gl_in.length(); i++)
+	{
+		gl_Position = gl_in[i].gl_Position;
+		outfragment = fragment[i].color;
+		EmitVertex();
+	}*/
+	gl_Position = (gl_in[0].gl_Position + gl_in[1].gl_Position)/2;
+	outfragment = fragment[0].color;
+	EmitVertex();
+	gl_Position = (gl_in[3].gl_Position + gl_in[2].gl_Position)/2;
+	outfragment = fragment[1].color;
+	EmitVertex();
+
+	EndPrimitive();
+}
