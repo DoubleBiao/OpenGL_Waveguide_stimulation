@@ -193,8 +193,7 @@ virtual	void changevertex(GLfloat * vertex)
 #define SCALE 1
 #define CURRENT 2
 
-#define SCALE_DIM 0.005
-#define CURRENT_DIM 0.1
+
 
 class gl_color_ver_instance_primitive: public gl_color_ver_primitive
 {
@@ -207,6 +206,9 @@ protected:
 	Shader _shader2;
 	GLuint _rendertype;
 	GLfloat *_origin;
+
+	GLfloat _DIM_1;
+	GLfloat _DIM_2;
 public:
 	gl_color_ver_instance_primitive(){_origin = NULL;}
 	void writebuffer()
@@ -218,7 +220,7 @@ public:
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
-	void react_vertexchange(GLfloat orgine[], glm::vec3 rowdir, glm::vec3 columndir)
+	virtual void react_vertexchange(GLfloat orgine[], glm::vec3 rowdir, glm::vec3 columndir)
 	{
 		_rowdir = rowdir;
 		_columndir = columndir;
@@ -235,21 +237,21 @@ public:
 		react_change();
 	}
 
-	void react_changetype(GLuint rendertype)
+	virtual void react_changetype(GLuint rendertype)
 	{
 		_rendertype = rendertype;
 		if(_rendertype == SCALE)
 		{
-			_elem_dimen = SCALE_DIM;
+			_elem_dimen = _DIM_1 ;
 		}
 		else
 		{
-			_elem_dimen = CURRENT_DIM;
+			_elem_dimen = _DIM_2 ;
 		}
 		react_change();
 	}
 
-	void react_change()
+	virtual void react_change()
 	{
 		GLfloat vertex_tmp[12];
 		_rownum = glm::length(_rowdir)/_elem_dimen;
@@ -278,19 +280,21 @@ public:
 	{
 		glDrawArraysInstancedARB(_mode, 0, _verticesnum,_elemennum);
 	}
-	void init(glm::mat4 const & model,GLuint rendertype,GLuint buffer_state = GL_STATIC_DRAW)
+	void init(glm::mat4 const & model,GLuint rendertype,GLfloat DIM1, GLfloat DIM2, GLuint buffer_state = GL_STATIC_DRAW)
 	{
 		_model = model;
 		_mode  = GL_LINES_ADJACENCY;
 		_rendertype = rendertype;
-		
+		_DIM_1 = DIM1;
+		_DIM_2 = DIM2;
+
 		if(_rendertype == SCALE)
 		{
-			_elem_dimen = SCALE_DIM;
+			_elem_dimen = _DIM_1 ;
 		}
 		else
 		{
-			_elem_dimen = CURRENT_DIM;
+			_elem_dimen = _DIM_2 ;
 		}
 
 		//initshader(vertexPath,fragmentPath,geometrypath);
@@ -354,4 +358,67 @@ public:
 	
 };
 
+
+class gl_color_ver_instance_3d_primitive:public gl_color_ver_instance_primitive
+{
+private:
+	glm::vec3 _layerdir;
+	GLuint _columnnum;
+public:
+	void react_vertexchange(GLfloat orgine[], glm::vec3 rowdir, glm::vec3 columndir, glm::vec3 layerdir)
+	{
+		_layerdir = layerdir;
+		gl_color_ver_instance_primitive::react_vertexchange(orgine, rowdir, columndir);
+	}
+	void react_change()
+	{
+		GLfloat vertex_tmp[12];
+		_rownum = glm::length(_rowdir)/_elem_dimen;
+		_columnnum = glm::length(_columndir)/_elem_dimen;
+		_elemennum = (glm::length(_rowdir)/_elem_dimen)*(glm::length(_columndir) /_elem_dimen)*(glm::length(_layerdir)/_elem_dimen);
+
+																		   //         elementsquare:
+		vertex_tmp[0 + 2 * 3] = _origin[0];                                //       1   --rowdir-->   0
+		vertex_tmp[1 + 2 * 3] = _origin[1];                                //      / \               / \ 
+		vertex_tmp[2 + 2 * 3] = _origin[2];								   //       |                 |
+																		   //    colunmdir         columndir
+		vertex_tmp[0 + 0 * 3] = _origin[0] + _columndir.x * _elem_dimen;   //       |                 |
+		vertex_tmp[1 + 0 * 3] = _origin[1] + _columndir.y * _elem_dimen;   //       |                 |
+		vertex_tmp[2 + 0 * 3] = _origin[2] + _columndir.z * _elem_dimen;   //       2   --rowdir-->   3 
+
+		vertex_tmp[0 + 3 * 3] = _origin[0] + _rowdir.x * _elem_dimen;  
+		vertex_tmp[1 + 3 * 3] = _origin[1] + _rowdir.y * _elem_dimen;
+		vertex_tmp[2 + 3 * 3] = _origin[2] + _rowdir.z * _elem_dimen;
+
+		vertex_tmp[0 + 1 * 3] = _origin[0] + _rowdir.x * _elem_dimen + _columndir.x * _elem_dimen;  
+		vertex_tmp[1 + 1 * 3] = _origin[1] + _rowdir.y * _elem_dimen + _columndir.y * _elem_dimen;
+		vertex_tmp[2 + 1 * 3] = _origin[2] + _rowdir.z * _elem_dimen + _columndir.z * _elem_dimen;
+
+		changevertex(vertex_tmp);
+	}
+	void writeobjectanduniform()
+	{
+		GLint modelLoc = glGetUniformLocation(_shader.Program, "model");
+        GLint viewLoc = glGetUniformLocation(_shader.Program, "view");
+        GLint projLoc = glGetUniformLocation(_shader.Program, "projection");
+        // Pass them to the shaders
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(_model));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(_view));
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(_projection));
+
+		GLint rowdirLoc = glGetUniformLocation(_shader.Program, "rowdir");
+		GLint columndirLoc = glGetUniformLocation(_shader.Program, "columndir");
+		GLint layerdirLoc = glGetUniformLocation(_shader.Program, "layerdir");
+		GLint rownumLoc = glGetUniformLocation(_shader.Program, "rownum");
+		GLint columnnumLoc = glGetUniformLocation(_shader.Program, "columnnum");
+		GLint eledimensionLoc = glGetUniformLocation(_shader.Program, "eledimension");
+		
+		glUniform3fv(rowdirLoc, 1, glm::value_ptr(glm::normalize(_rowdir)));
+		glUniform3fv(columndirLoc, 1, glm::value_ptr(glm::normalize(_columndir)));
+		glUniform3fv(layerdirLoc, 1, glm::value_ptr(glm::normalize(_layerdir)));
+		glUniform1i(rownumLoc, _rownum);
+		glUniform1i(columnnumLoc, _columnnum);
+		glUniform1f(eledimensionLoc,_elem_dimen);
+	}
+};
 #endif

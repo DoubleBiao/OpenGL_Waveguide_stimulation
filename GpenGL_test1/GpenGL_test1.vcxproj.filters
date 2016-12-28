@@ -30,6 +30,9 @@
     <Text Include="ins_vertex.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="ins_vertex2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.h">
@@ -44,9 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="glpaint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="objects.cpp">

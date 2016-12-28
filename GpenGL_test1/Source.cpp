@@ -67,7 +67,8 @@ glm::vec3 _surface_vertex[4]=
 int surface_index = -1;
 
 axis Axis;
-cube_surface Surface;
+cube Cube;
+
 
 int main()
 {
@@ -76,14 +77,14 @@ int main()
    
 	std::string axisshaderpath[2] = {"vertex.txt","fragment.txt"};
 	std::string surfaceshader[]={ "vertex.txt", "", "fragment.txt"};
-	std::string elemshader1[]={ "ins_vertex.txt", "geometry.txt", "fragment2.txt"};
-	std::string elemshader2[]={ "ins_vertex.txt", "", "fragment.txt"};
+	std::string elemshader1[]={ "ins_vertex2.txt", "geometry.txt", "fragment2.txt"};
+	std::string elemshader2[]={ "ins_vertex2.txt", "geometry.txt", "fragment2.txt"};
 
 	Axis.initShader(axisshaderpath);
 	Axis.init();
 
-	Surface.initShader(surfaceshader,elemshader1,elemshader2);
-	Surface.init(_surface_vertex);
+	Cube.initShader(surfaceshader,elemshader1,elemshader2);
+	Cube.init(cube_vertices);
 	 //const GLubyte * OpenGLVersion = glGetString(GL_VERSION);
 	 //printf("OOpenGL实现的版本号：%s\n",OpenGLVersion);
    	model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.5f, 1.0f, 0.0f));
@@ -109,7 +110,7 @@ int main()
     //    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		Axis.draw(model,view,projection);
-		Surface.draw(model,view,projection);
+		Cube.draw(model,view,projection);
         glfwSwapBuffers(window);
     }
     glfwTerminate();
@@ -123,83 +124,50 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
    GLfloat incre = 0.04;
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+}
+
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	static bool flag_first = true;
+
+	if(surface_index!= -1 && flag_first == false )
 	{
-		Surface.moveedge(incre,'y','+');
-	}
-	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-	{
-		Surface.moveedge(incre,'y','-');
-	}
-	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-	{
-		Surface.moveedge(incre,'x','+');
-	}
-	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-	{
-		Surface.moveedge(incre,'x','-');
-	}
-	if (key == GLFW_KEY_A && action == GLFW_PRESS)
-	{
-		Surface.changetype(SCALE);
-	}
-	if (key == GLFW_KEY_S && action == GLFW_PRESS)
-	{
-		Surface.changetype(CURRENT);
+		glm::vec4 viewport = glm::vec4(0.0f, 0.0f, WIDTH, HEIGHT);
+
+		Cube.move(glm::vec2(xpos - cursorpos.x, -(ypos - cursorpos.y)),model,view,projection,viewport,surface_index);		
 	}
 
+	cursorpos.x = xpos;
+	cursorpos.y = ypos;
+	flag_first = false;
 }
-//
-//
-//void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-//{
-//	static bool flag_first = true;
-//	glm::vec3 cursor_pos;
-//	static glm::vec3 cursor_pos_former;
-//
-//	if(surface_index!= -1)
-//	{
-//		cursor_pos.x = xpos;
-//		cursor_pos.y = ypos;
-//		glm::vec4 viewport = glm::vec4(0.0f, 0.0f, WIDTH, HEIGHT);
-//		glm::vec3 screenPos = glm::vec3(cursor_pos.x, HEIGHT-cursor_pos.y - 1, 0.96);
-//		cursor_pos = glm::unProject(screenPos, view , projection, viewport);
-//
-//		if(flag_first == false)
-//			Cube.move(cursor_pos,model,surface_index);
-//		printf("%d\n", surface_index);
-//		Cube.setbuffer();
-//		cursor_pos_former = cursor_pos;
-//
-//		flag_first = false;
-//	}
-//
-//	cursorpos.x = xpos;
-//	cursorpos.y = ypos;
-//}
-//
-//void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-//{
-//	glm::vec4 viewport = glm::vec4(0.0f, 0.0f, WIDTH, HEIGHT);
-//	glm::vec3 screenPos = glm::vec3(cursorpos.x, HEIGHT-cursorpos.y - 1, 0.96);
-//	glm::vec3 worldPos = glm::unProject(screenPos, view , projection, viewport);
-//    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-//	{
-//		if(Cube.find_insect_surface(cameraPos,worldPos - cameraPos, surface_index, model))
-//		{
-//		//	printf("%d\n",surface_index);
-//			Cube.changecolor(glm::vec3(1.0f, 1.0f, 1.0f),surface_index);
-//			Cube.loadbuffer(surface_index);
-//		}
-//	}
-//	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && surface_index != -1)
-//	{
-//		//printf("%d\n",surface_index);
-//		Cube.changecolor(glm::vec3(1.0f, .5f, 0.2f),surface_index);
-//		Cube.loadbuffer(surface_index);
-//		surface_index = -1;
-//	}
-//}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	glm::vec4 viewport = glm::vec4(0.0f, 0.0f, WIDTH, HEIGHT);
+	glm::vec3 screenPos = glm::vec3(cursorpos.x, HEIGHT-cursorpos.y - 1, 0.96);
+	glm::vec3 worldPos = glm::unProject(screenPos, view , projection, viewport);
+
+//	glm::vec3 screenPosA = glm::project(worldPos,view,projection,viewport);
+
+//printf("mouse position: %f , %f\n", cursorpos.x, HEIGHT-cursorpos.y - 1);
+//printf("projected position: %f, %f\n", screenPosA.x, screenPosA.y);
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		if(Cube.find_insect_surface(cameraPos,worldPos - cameraPos, surface_index, model))
+		{
+		//	printf("%d\n",surface_index);
+			Cube.changecolor(glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && surface_index != -1)
+	{
+		//printf("%d\n",surface_index);
+		Cube.changecolor(glm::vec3(1.0f, .5f, 0.2f));
+		surface_index = -1;
+	}
+}
 
 
 GLFWwindow* gl_glfw_init()
@@ -218,8 +186,8 @@ GLFWwindow* gl_glfw_init()
 	
     // Set the required callback functions
     glfwSetKeyCallback(window, key_callback);
-//	glfwSetCursorPosCallback(window, mouse_callback);
-//	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
     // Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
     glewExperimental = GL_TRUE;
     // Initialize GLEW to setup the OpenGL Function pointers

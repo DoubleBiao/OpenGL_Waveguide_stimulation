@@ -4,6 +4,9 @@
 layout (lines_adjacency) in;
 layout (line_strip,max_vertices = 2) out;
 
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 in Fragment
 {
     vec4 color;
