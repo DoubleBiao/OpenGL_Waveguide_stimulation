@@ -256,7 +256,7 @@ void cube::init(glm::vec3 vex[])
 
 	_surface.writebuffer();
 
-	_ele_color.init(glm::mat4(),SCALE,0.1,0.1);
+	_ele_color.init(glm::mat4(),SCALE,0.5,0.5);
 	GLfloat orign[] = {_vertex[7].x,_vertex[7].y,_vertex[7].z};
 	_ele_color.react_vertexchange(orign,_vertex[4]-_vertex[7],_vertex[6]-_vertex[7],_vertex[3]-_vertex[7]);
 }
