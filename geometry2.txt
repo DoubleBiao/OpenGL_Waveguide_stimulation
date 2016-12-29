@@ -1,0 +1,48 @@
+//geometry
+#version 330
+
+layout (points) in;
+layout (line_strip,max_vertices = 2) out;
+
+uniform float eledimension;
+in  Fragment
+{
+	vec4 dir_p1;
+	vec4 dir_p2;
+} fragment[];
+
+out vec4 outfragment;
+
+
+uniform mat4 view;
+uniform mat4 projection;
+
+
+void main(void)
+{
+	/*vec4 dir = normalize(fragment[0].dir);
+	float magnitude = length(fragment[0].dir);
+	vec4 color = vec4(0,0,1.0,1.0) + (vec4(1.0,0,0,1.0) - vec4(0,0,1.0,1.0)) * magnitude/3.0;
+	dir.w = 0;
+
+	gl_Position =  (gl_in[0].gl_Position + dir *eledimension * magnitude/1.73) ; 
+	outfragment = color;
+	EmitVertex();
+	gl_Position =  (gl_in[0].gl_Position - dir *eledimension * magnitude/1.73);
+	outfragment = color;
+	EmitVertex();*/
+
+	//vec4 dir = normalize(fragment[0].dir);
+	float magnitude = length((fragment[0].dir_p1 - fragment[0].dir_p2).xyz);
+	vec4 color = vec4(0,0,1.0,1.0) + (vec4(1.0,0,0,1.0) - vec4(0,0,1.0,1.0)) * magnitude/3.0;
+
+
+	gl_Position = fragment[0].dir_p1 ; 
+	outfragment = color;
+	EmitVertex();
+	gl_Position = fragment[0].dir_p2;
+	outfragment = color;
+	EmitVertex();
+
+	EndPrimitive();
+}

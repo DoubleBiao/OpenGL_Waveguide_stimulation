@@ -1,0 +1,36 @@
+//ins_vertex
+#version 330 core
+
+in vec3 position;
+in vec3 color;
+
+uniform vec3 rowdir;
+uniform vec3 columndir;
+uniform int rownum;
+uniform float eledimension;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+out Fragment
+{
+    vec4 color;
+} fragment;
+
+void main(void)
+{
+	float row_index = floor(gl_InstanceID/rownum);
+	float column_index = gl_InstanceID - row_index * rownum;
+    gl_Position = projection * view * model * vec4( position + row_index * columndir * eledimension + column_index * rowdir * eledimension, 1.0); 
+	
+	float color = row_index /256;
+	while(color > 3)
+	{
+		color -= 3;
+	}
+
+	if(color < 1)	fragment.color = vec4(0,0,color,1.0);
+	else if(color < 2)   fragment.color = vec4(0,color - 1,1.0,1.0);
+	else /* color <3*/ fragment.color = vec4(color - 2,1.0,1.0,1.0);           
+}
