@@ -1,0 +1,55 @@
+//ins_vertex
+#version 330 core
+
+in vec3 position;
+in vec3 color;
+
+uniform vec3 rowdir;
+uniform vec3 columndir;
+uniform vec3 layerdir;
+uniform int rownum;
+uniform int columnnum;
+uniform float eledimension;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+uniform float betaoverh2;
+uniform float beta;
+uniform float phase;
+uniform float api;
+uniform float bpi;
+
+out Fragment
+{
+	vec3 dir;
+} fragment;
+
+// gl_InstanceID = layerindex *(rownum*columnnum) + rowindex * rownum + columnumindex
+ 
+void main(void)
+{
+   vec4 dir;
+   float layer_index = floor(gl_InstanceID/rownum/columnnum);
+   float row_index = floor((gl_InstanceID - layer_index*rownum*columnnum)/rownum);
+   float column_index = gl_InstanceID - layer_index*rownum*columnnum - row_index * rownum;
+   mat4 transform = view * model ;
+
+   gl_Position = transform * vec4( position + ( row_index + 0.5) * columndir * eledimension + ( column_index +0.5 )* rowdir * eledimension + ( layer_index + 0.5 )* layerdir * eledimension , 1.0); 
+  
+   float x = ( column_index + 0.5)*1e-2 * eledimension;
+   float y = ( row_index + 0.5)* 1e-2 * eledimension;
+   float z = ( layer_index  + 0.5) *1e-2 * eledimension;
+
+   fragment.dir.x = betaoverh2*api*cos(api*x)*sin(bpi*y)*sin(phase - beta*z);
+   fragment.dir.y = betaoverh2*bpi*sin(api*x)*cos(bpi*y)*sin(phase - beta*z);
+
+   //fragment.dir.x = cos(api*x)*sin(bpi*y)/sin(api*x)/cos(bpi*y); //fragment.dir.x /fragment.dir.y;
+
+   fragment.dir.z = sin(api*x)*sin(bpi*y)*cos(phase - beta*z);
+
+   fragment.dir = (transform * vec4(fragment.dir,0)).xyz;
+
+
+}
