@@ -77,8 +77,8 @@ int main()
    
 	std::string axisshaderpath[2] = {"vertex.txt","fragment.txt"};
 	std::string surfaceshader[]={ "vertex.txt", "", "fragment.txt"};
-	std::string elemshader1[]={ "ins_vertex2.txt", "geometry.txt", "fragment2.txt"};
-	std::string elemshader2[]={ "ins_vertex2.txt", "geometry.txt", "fragment2.txt"};
+	std::string elemshader1[]={ "ins_vertex2.txt", "geometry2.txt", "fragment2.txt"};
+	std::string elemshader2[]={ "ins_vertex2.txt", "geometry2.txt", "fragment2.txt"};
 
 	Axis.initShader(axisshaderpath);
 	Axis.init();
@@ -87,7 +87,7 @@ int main()
 	Cube.init(cube_vertices);
 	 //const GLubyte * OpenGLVersion = glGetString(GL_VERSION);
 	 //printf("OOpenGL实现的版本号：%s\n",OpenGLVersion);
-   	model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+   	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 	view =glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
     projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 

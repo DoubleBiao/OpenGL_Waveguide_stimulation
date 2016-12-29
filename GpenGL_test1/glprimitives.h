@@ -64,31 +64,31 @@ public:
 		glDeleteBuffers(1, &_VBO);
 		glDeleteVertexArrays(1, &_VAO);
 	}
-virtual	void writebuffer()
+	virtual	void writebuffer()
+	{
+		GLfloat *colortmp;
+		colortmp = new GLfloat[_verticesnum * 3];
+
+
+		int k = 0;
+		for(int i = 0; i<_verticesnum; i++)
 		{
-			GLfloat *colortmp;
-			colortmp = new GLfloat[_verticesnum * 3];
-
-
-			int k = 0;
-			for(int i = 0; i<_verticesnum; i++)
-			{
-				colortmp[k++] = _color.x;
-				colortmp[k++] = _color.y;
-				colortmp[k++] = _color.z;
-			}
-
-			glBindVertexArray(_VAO);
-			glBindBuffer(GL_ARRAY_BUFFER, _VBO);
-			GLuint offset = 0;
-			glBufferSubData(GL_ARRAY_BUFFER, offset, _verticesnum *3 * sizeof(GLfloat), _vertex);
-			offset +=  _verticesnum *3 * sizeof(GLfloat);
-			glBufferSubData(GL_ARRAY_BUFFER, offset, _verticesnum *3 * sizeof(GLfloat), colortmp);
-
-			glBindVertexArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			colortmp[k++] = _color.x;
+			colortmp[k++] = _color.y;
+			colortmp[k++] = _color.z;
 		}
-	void init(GLuint vertexnum, GLfloat vertex[], glm::vec3 &color,
+
+		glBindVertexArray(_VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+		GLuint offset = 0;
+		glBufferSubData(GL_ARRAY_BUFFER, offset, _verticesnum *3 * sizeof(GLfloat), _vertex);
+		offset +=  _verticesnum *3 * sizeof(GLfloat);
+		glBufferSubData(GL_ARRAY_BUFFER, offset, _verticesnum *3 * sizeof(GLfloat), colortmp);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+	virtual void init(GLuint vertexnum, GLfloat vertex[], glm::vec3 &color,
 		glm::mat4 const & model,GLuint buffer_state = GL_STATIC_DRAW)
 	{
 		_model = model;
@@ -279,6 +279,7 @@ public:
 	void dorendering()
 	{
 		glDrawArraysInstancedARB(_mode, 0, _verticesnum,_elemennum);
+		//glDrawArrays(_mode, 0, _verticesnum);
 	}
 	void init(glm::mat4 const & model,GLuint rendertype,GLfloat DIM1, GLfloat DIM2, GLuint buffer_state = GL_STATIC_DRAW)
 	{
@@ -365,37 +366,35 @@ private:
 	glm::vec3 _layerdir;
 	GLuint _columnnum;
 public:
+	void init(glm::mat4 const & model,GLuint rendertype,GLfloat DIM1, GLfloat DIM2, GLuint buffer_state = GL_STATIC_DRAW)
+	{
+		gl_color_ver_instance_primitive::init(model,rendertype,DIM1, DIM2, buffer_state);
+		_verticesnum = 1;
+		_mode = GL_POINTS;
+	}
 	void react_vertexchange(GLfloat orgine[], glm::vec3 rowdir, glm::vec3 columndir, glm::vec3 layerdir)
 	{
 		_layerdir = layerdir;
 		gl_color_ver_instance_primitive::react_vertexchange(orgine, rowdir, columndir);
 	}
+
 	void react_change()
 	{
-		GLfloat vertex_tmp[12];
+		GLfloat vertex_tmp[3];
 		_rownum = glm::length(_rowdir)/_elem_dimen;
 		_columnnum = glm::length(_columndir)/_elem_dimen;
 		_elemennum = (glm::length(_rowdir)/_elem_dimen)*(glm::length(_columndir) /_elem_dimen)*(glm::length(_layerdir)/_elem_dimen);
 
-																		   //         elementsquare:
-		vertex_tmp[0 + 2 * 3] = _origin[0];                                //       1   --rowdir-->   0
-		vertex_tmp[1 + 2 * 3] = _origin[1];                                //      / \               / \ 
-		vertex_tmp[2 + 2 * 3] = _origin[2];								   //       |                 |
-																		   //    colunmdir         columndir
-		vertex_tmp[0 + 0 * 3] = _origin[0] + _columndir.x * _elem_dimen;   //       |                 |
-		vertex_tmp[1 + 0 * 3] = _origin[1] + _columndir.y * _elem_dimen;   //       |                 |
-		vertex_tmp[2 + 0 * 3] = _origin[2] + _columndir.z * _elem_dimen;   //       2   --rowdir-->   3 
 
-		vertex_tmp[0 + 3 * 3] = _origin[0] + _rowdir.x * _elem_dimen;  
-		vertex_tmp[1 + 3 * 3] = _origin[1] + _rowdir.y * _elem_dimen;
-		vertex_tmp[2 + 3 * 3] = _origin[2] + _rowdir.z * _elem_dimen;
+																		   
+		vertex_tmp[0] = _origin[0];   
+		vertex_tmp[1] = _origin[1];
+		vertex_tmp[2] = _origin[2];
 
-		vertex_tmp[0 + 1 * 3] = _origin[0] + _rowdir.x * _elem_dimen + _columndir.x * _elem_dimen;  
-		vertex_tmp[1 + 1 * 3] = _origin[1] + _rowdir.y * _elem_dimen + _columndir.y * _elem_dimen;
-		vertex_tmp[2 + 1 * 3] = _origin[2] + _rowdir.z * _elem_dimen + _columndir.z * _elem_dimen;
 
 		changevertex(vertex_tmp);
 	}
+
 	void writeobjectanduniform()
 	{
 		GLint modelLoc = glGetUniformLocation(_shader.Program, "model");
